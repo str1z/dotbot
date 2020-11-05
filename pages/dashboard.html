@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="global.css" />
+    <link rel="stylesheet" href="dashboard.css" />
+
+    <script src="utils.js"></script>
+  </head>
+  <body>
+    <div id="nav">
+      <a onclick="document.getElementById('menu').className = ''">☰</a>
+      DOTBOT
+
+      <div id="subnav">
+        <span id="username"></span>
+      </div>
+    </div>
+    <div id="menu" class="hide-menu">
+      <a style="color: rgb(255, 50, 50); font-size: 14px;" onclick="document.getElementById('menu').className = 'hide-menu'">⨉</a>MENU
+      <hr />
+      <h3 class="menu-sub">NAVIGATION</h3>
+      <a href="dashboard">DASHBOARD</a>
+      <a href="projects">PROJECTS</a>
+      <a href="hosting">HOSTING</a>
+      <a href="projects">SETTINGS</a>
+      <h3 class="menu-sub">HELP</h3>
+      <a href="projects">DOCS</a>
+    </div>
+    <script>
+      GET("api/user", (data) => {
+        id("username").innerHTML = data.username;
+      });
+    </script>
+  </body>
+</html>

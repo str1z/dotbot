@@ -1,0 +1,74 @@
+{
+  "@feedback:unknow_command": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "Unknown command" }]
+  },
+  "@feedback:access_denied": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "Access denied" }]
+  },
+  "@feedback:unknow_user": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "User not found" }]
+  },
+  "@feedback:unknow_emoji": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "Unknow emoji" }]
+  },
+  "@feedback:success": {
+    "roles": [],
+    "actions": [{ "type": "react", "emoji": "9989" }]
+  },
+  "@feedback:embed_error": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "Embed error" }]
+  },
+  "@feedback:message_error": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "Message error" }]
+  },
+  "@feedback:error": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "An error occured" }]
+  },
+  "@feedback:clear_error": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "DiscordAPIError: You can only bulk delete messages that are under 14 days old." }]
+  },
+  "@feedback:clear_success": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "%author% cleared some lines." }]
+  },
+  "@feedback:expected_int": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "Value needs to be of type integer" }]
+  },
+  "@feedback:kick_error": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "Failed to kick this member." }]
+  },
+  "@feedback:ban_error": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "Failed to ban this member." }]
+  },
+  "@feedback:unknown_channel": {
+    "roles": [],
+    "actions": [{ "type": "send", "text": "Channel was not found" }]
+  },
+  "@feedback:too_fast": {
+    "roles": [],
+    "actions": [{ "type": "reply", "text": "you are in cooldown mode." }]
+  },
+  "@event:client_ready": {
+    "roles": [],
+    "actions": []
+  },
+  "@event:member_join": {
+    "roles": [],
+    "actions": []
+  },
+  "@event:member_leave": {
+    "roles": [],
+    "actions": []
+  }
+}

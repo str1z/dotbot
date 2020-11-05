@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="altweb.js"></script>
+    <script src="utils.js"></script>
+
+    <link rel="stylesheet" href="editor2.css" />
+    <link rel="stylesheet" href="global.css" />
+    <link rel="stylesheet" href="animations.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="nav">
+      <a style="text-decoration: none; color: rgb(255, 50, 50); font-size: 14px;" onclick="document.getElementById('menu').className = ''">☰</a>
+      <span>DOTBOT</span>
+      <span id="project-name"></span>
+      <div id="subnav">
+        <span id="username"></span>
+      </div>
+    </div>
+
+    <div id="commands-container"></div>
+
+    <div id="save-div" class="hide-save-div">
+      <span id="save-status">Careful - you have unsaved changes!</span>
+      <input id="reset-button" value="Reset" type="button" />
+      <input id="save-button" value="Save changes" type="button" />
+    </div>
+
+    <div id="menu" class="hide-menu">
+      <a style="color: rgb(255, 50, 50); font-size: 14px;" onclick="document.getElementById('menu').className = 'hide-menu'">⨉</a>MENU
+      <hr />
+      <h3 class="menu-sub">NAVIGATION</h3>
+      <a href="dashboard">DASHBOARD</a>
+      <a href="projects">PROJECTS</a>
+      <a href="hosting">HOSTING</a>
+      <a href="projects">SETTINGS</a>
+      <h3 class="menu-sub">HOSTING</h3>
+      <a onclick="(() => {console.log('hello there')})()">OPEN</a>
+      <a onclick="(() => {console.log('hello there')})()">HOST</a>
+      <h3 class="menu-sub">HELP</h3>
+      <a href="projects">DOCS</a>
+      <a onclick="(() => {console.log('hello there')})()">TROUBLESHOOT</a>
+    </div>
+    <script>
+      const actions = {
+        reply: ["text"],
+        dm: ["user", "text"],
+        send: ["text"],
+        channel: ["string", "text"],
+        react: ["emoji"],
+        ban: ["user"],
+        kick: ["user"],
+        clear: ["text"],
+      };
+      const useroption = ["author", "user", "arg1", "arg2", "arg3"];
+      let commands;
+      let previous;
+      let project_id = new URLSearchParams(location.search).get("id");
+      id("reset-button").onclick = reset;
+      id("save-button").onclick = save;
+      id("nav").onclick = () => commands._trigger();
+      alt.GET("api/user", (data) => (id("username").innerHTML = data.error ? `<span style="color: red;">${data.error}</span>` : data.username));
+      alt.GET(`api/project?id=${project_id}`, (data) => {
+        id("project-name").innerHTML = data.error ? `<span style="color: red;">${data.error}</span>` : `<span style="color: #0a9ad3;">${data.name.toUpperCase()}</span>`;
+        commands = JSON.parse(data.commands);
+        {
+          alt("#commands-container")
+            .onAltEvent("map", (e) =>
+              e.has(
+                alt({ tag: "div", class: "add_command command-container compacted", html: "+" }).on("click", () => {
+                  commands._push({ name: "new_command", roles: [], actions: [] });
+                  check_changes();
+                })
+              )
+            )
+            .dynamap(commands, (cmd, e) => {
+              let div = alt({ tag: "div", class: "command-container compacted" }).on("click", (e) => {
+                e.parent.childrenExec((child) => {
+                  if (child == e) child.removeClass("compacted");
+                  else child.addClass("compacted");
+                });
+              });
+              //name
+              alt({ tag: "button", html: "•", class: "delete-command delete-button" })
+                .in(div)
+                .on("click", (e) => {
+                  commands._splice(commands.indexOf(cmd), 1);
+                  check_changes();
+                });
+              alt({ tag: "h4", html: "NAME", class: "command-section-title" }).in(div);
+              let nameElem = alt({ tag: "input", placeholder: "command name", class: "name", value: cmd.name })
+                .in(div)
+                .on("keyup", (e) => (cmd.name = e.value().replace(/\s/g, "")));
+              alt({ tag: "hr", class: "command-section-separator" }).in(div);
+              //roles
+              alt({ tag: "h4", html: "ROLES", class: "command-section-title" }).in(div);
+              let rolesContainer = alt({ tag: "div", class: "role-container" }).in(div);
+              let addRoleContainer = alt({ tag: "div", class: "add-role-container" }).in(rolesContainer);
+              let rolesInput = alt({ tag: "input", placeholder: "role name", type: "text", class: "role-input" }).in(addRoleContainer);
+              let addRole = alt({ tag: "input", type: "button", value: "+", class: "add-role" })
+                .in(addRoleContainer)
+                .on("click", (e) => {
+                  if (cmd.roles.includes(rolesInput.dom.value) || rolesInput.dom.value == "") return;
+                  cmd.roles._push(rolesInput.dom.value);
+                  check_changes();
+                  rolesInput.dom.value = "";
+                });
+              let roleList = alt({ tag: "div", class: "list" })
+                .dynamap(cmd.roles, (v, e) => {
+                  return alt({ tag: "div", class: "list-item" }).has(
+                    alt({ tag: "button", html: "•", class: "delete-role delete-button" }).on("click", () => {
+                      cmd.roles._splice(cmd.roles.indexOf(v), 1);
+                      check_changes();
+                    }),
+                    alt({ tag: "span", html: v })
+                  );
+                })
+                .onAltEvent("map", (e) => e.style("visibility", cmd.roles.length > 0 ? "visible" : "hidden"))
+                .in(rolesContainer)
+                .style("visibility", cmd.roles.length > 0 ? "visible" : "hidden");
+              alt({ tag: "hr", class: "command-section-separator" }).in(div);
+              //actions
+              alt({ tag: "h4", html: "ACTIONS", class: "command-section-title" }).in(div);
+              let actionContainer = alt({ tag: "div", class: "action-container" }).in(div);
+              let addActionContainer = alt({ tag: "div", class: "add-action-container" }).in(actionContainer);
+              let actionInput = alt({ tag: "select", class: "action-input" })
+                .exec((e) => {
+                  for (let key in actions) alt({ tag: "option", value: key, html: key }).in(e);
+                })
+                .in(addActionContainer);
+              let addAction = alt({ tag: "input", value: "+", type: "button", class: "add-action" })
+                .in(addActionContainer)
+                .on("click", (e) => {
+                  let argsDict = {
+                    user: "%author%",
+                    text: "",
+                    number: 1,
+                    emoji: "128513",
+                    string: "",
+                  };
+                  cmd.actions._push({ type: actionInput.dom.value, ...argsDict[actionInput.dom.value] });
+                  check_changes();
+                });
+              let actionList = alt({ tag: "div", class: "list" })
+                .dynamap(cmd.actions, (v, e) => {
+                  let actionItem = alt({ tag: "div", class: "list-item" });
+                  let removeItem = alt({ tag: "button", html: "•", class: "delete-action delete-button" })
+                    .on("click", (e) => {
+                      cmd.actions._splice(cmd.actions.indexOf(v), 1);
+                      check_changes();
+                    })
+                    .in(actionItem);
+                  alt({ tag: "span", html: v.type }).in(actionItem);
+
+                  for (let valueType of actions[v.type])
+                    switch (valueType) {
+                      case "string":
+                        alt({ tag: "input", type: "text", class: "inparam", placeholder: "string", value: v[valueType] })
+                          .in(actionItem)
+                          .on("keyup", (e) => (v[valueType] = e.dom.value));
+                        break;
+                      case "user":
+                        alt({ tag: "select", class: "inparam" })
+                          .map(useroption, (o) => alt({ tag: "option", html: o, value: o }))
+                          .in(actionItem)
+                          .on("change", (e) => {
+                            v[valueType] = e.dom.value;
+                            check_changes();
+                          })
+                          .value(v[valueType]);
+                        break;
+                      case "text":
+                        function update(e) {
+                          v[valueType] = e.dom.innerText;
+                          if (e.dom.innerText.startsWith("#embed#\n")) {
+                            e.dom.innerHTML = e.dom.innerText
+                              .replace(/(%\S+%)/g, (match, res) => `<span class="keyword">${res}</span>`)
+                              .replace(/#embed#/, '<span class="format">#embed#</span>')
+                              .replace(/^\s*(\w+)\s*:\s*(.*)$/gm, (match, key, value) => `<span class="key">${key}</span> <span class="operator">:</span> <span class="value">${value}</span>`)
+                              .replace(/\n/g, "<br>");
+                          } else {
+                            e.dom.innerHTML = e.dom.innerText.replace(/(%\S+%)/g, (match, res) => `<span class="keyword">${res}</span>`).replace(/\n/g, "<br>");
+                          }
+                        }
+                        update(
+                          alt({ tag: "span", contentEditable: "true", class: "textparam", html: v[valueType] })
+                            .in(actionItem)
+                            .on("focusout", (e) => update(e))
+                            .on("keyup", (e) => (v[valueType] = e.dom.innerText))
+                        );
+                        break;
+                      case "emoji":
+                        let select = alt({ tag: "select", class: "inparam" })
+                          .on("change", (e) => (v[valueType] = e.dom.value))
+                          .in(actionItem);
+                        for (let range of [
+                          [128513, 128591],
+                          [9986, 9998],
+                          [10024, 10025],
+                          [10060, 10061],
+                          [10062, 10063],
+                          [10067, 10070],
+                          [10071, 10072],
+                          [128640, 128704],
+                        ])
+                          for (let i = range[0]; i < range[1]; i++) alt({ tag: "option", value: i, html: "&#" + i }).in(select);
+                        select.value(v[valueType]);
+                        break;
+                    }
+
+                  return actionItem;
+                })
+                .style("visibility", cmd.actions.length > 0 ? "visible" : "hidden")
+                .in(actionContainer)
+                .onAltEvent("map", (e) => e.style("visibility", cmd.actions.length > 0 ? "visible" : "hidden"));
+              return div;
+            });
+        }
+        previous = data.commands;
+        window.onkeyup = check_changes;
+      });
+      function check_changes() {
+        if (!previous) return;
+        if (previous == JSON.stringify(commands)) return (id("save-div").className = "hide-save-div");
+        id("save-div").className = "";
+      }
+      function reset() {
+        commands._set(JSON.parse(previous));
+        commands._trigger();
+        id("save-status").innerHTML = "Careful - you have unsaved changes!";
+        console.log(previous);
+        check_changes();
+      }
+      function download(data) {
+        let blob = new Blob([data], { type: "test/json" });
+        if (window.navigator.msSaveOrOpenBlob) return window.navigator.msSaveBlob(blob, "commands.json");
+        let elem = document.createElement("a");
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = "commands.json";
+        document.body.append(elem);
+        elem.click();
+        elem.remove();
+      }
+      function need_help() {
+        setTimeout(() => {
+          id("save-div").className = "";
+          id("save-status").innerHTML = '<span style="color: dimgrey;">┻━┻︵ヽ(`Д´)ﾉ︵ ┻━┻</span><br>Failed to save! ';
+          let help = id("save-status").appendChild(document.createElement("span"));
+          help.className = "help";
+          help.innerHTML = "Need help?";
+          help.onclick = troubleshoot;
+        }, 1500);
+      }
+      function troubleshoot() {
+        //create interface
+        let div = document.body.appendChild(document.createElement("div"));
+        div.id = "troubleshooter";
+        div.innerText += "bolt editor toubleshooter @ v0.0.1\n";
+        div.innerText += "starting diagnosis...\n";
+        div.innerText += "checking server connectivity...\n";
+        let img = document.body.appendChild(document.createElement("img"));
+        img.lastmod;
+        img.onload = () => {
+          img.remove();
+          //online
+          div.innerText += "server is online\n";
+          div.innerText += "checking your cookies\n";
+          if (!document.cookie) {
+            div.innerText += "seems like your cookies got eaten...\n";
+            div.innerText += "downloading your command file...If you have done a lot of valuable progress, you can recover your progress with this file.\n";
+            download(JSON.stringify(commands));
+          } else {
+            div.innerText += "cookies are still on the plate...\n";
+            div.innerText += "It seems that your cookies has expired, get a new one by signing in.\n";
+            div.innerHTML += `<a href="/login" target="_blank"style="text-decoration: underline; color: white;">Click here to login. After comeback here and save.</a>`;
+          }
+        };
+        img.onerror = () => {
+          img.remove();
+          //offline
+          div.innerText += "server is offline\n";
+          div.innerText += "downloading your command file... If you have done a lot of valuable progress, you can recover your progress with this file.\n";
+          download(JSON.stringify(commands));
+        };
+        img.src = "logo.png?lastmod=1";
+      }
+      function save() {
+        let pendingTimeout = setTimeout(() => {
+          id("save-status").innerHTML = "Waiting for server...";
+          id("save-div").className = "save-pending";
+        }, 50);
+
+        let show_error = () => {
+          id("save-div").className = "save-error";
+          id("save-status").innerHTML = "┻━┻︵ヽ(`Д´)ﾉ︵ ┻━┻<br>Failed to save! Aaahhh!!!";
+          need_help();
+        };
+
+        POST(`api/project?id=${project_id}`, { data: commands })
+          .then((data) => {
+            if (data.error) return show_error();
+            id("save-div").className = "hide-save-div";
+            previous = JSON.stringify(commands);
+            id("save-status").innerText = "Careful - you have unsaved changes!";
+          })
+          .catch(() => show_error())
+          .finally(() => clearTimeout(pendingTimeout));
+      }
+    </script>
+  </body>
+</html>

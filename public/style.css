@@ -1,0 +1,161 @@
+body {
+  background-color: rgb(40, 40, 40);
+  color: black;
+  font-family: Arial;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+form {
+  margin: auto;
+  width: 300px;
+  display: flex;
+  flex-flow: column;
+  margin-top: calc(50vh - 200px);
+}
+
+form > div {
+  text-align: center;
+  margin: 20px;
+  color: white;
+  font-size: larger;
+  font-weight: bold;
+}
+
+form > div > img {
+  width: 50px;
+}
+
+form > input {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 5px;
+  border: none;
+}
+
+form > button {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 5px;
+  border: none;
+  background-color: dodgerblue;
+  color: white;
+}
+
+#nav > a {
+  /* padding-left: 10px; */
+  margin-left: 10px;
+  transition: 0.2s;
+}
+
+.line-left {
+  border-left: 1px solid grey;
+  padding-left: 10px;
+}
+
+#nav > a:hover {
+  color: dodgerblue;
+}
+
+.project {
+  margin: 10px;
+
+  padding: 20px;
+  border-radius: 5px;
+  background-color: rgb(20, 20, 20);
+  color: white;
+
+  transition: 0.2s;
+}
+
+/* .project:hover {
+  background: rgb(40, 40, 40);
+} */
+
+.project > div {
+  float: right;
+  margin-top: -7px;
+  display: flex;
+  align-items: center;
+}
+
+.project > div > a {
+  margin-left: 15px;
+
+  /* padding: 5px; */
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.project > div > a:hover {
+  color: dodgerblue;
+}
+
+.project > div > .delete-btn:hover {
+  color: red;
+}
+
+.project > div > .delete-btn {
+  font-size: xx-large;
+
+  vertical-align: sub;
+}
+
+#new-project {
+  text-align: center;
+  margin: 20px;
+}
+
+#new-project > a {
+  color: grey;
+  padding: 10px;
+  margin: 10px;
+}
+
+#popup-container {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#popup-window {
+  width: fit-content;
+
+  border-radius: 3px;
+  border: 1px #202225 solid;
+  background-color: hsl(222, 6%, 20%);
+}
+
+#popup-window > div {
+  padding: 20px;
+  display: flex;
+}
+.popup-button {
+  background: #303339;
+  transition: 0.2s;
+  border: 1px solid #222428;
+  padding: 10px;
+  margin: 5px;
+  color: lightgray;
+  outline: none;
+  font-size: medium;
+}
+
+.popup-button:hover {
+  background: dodgerblue;
+  color: white;
+}
+
+h6 {
+  margin: 0;
+}

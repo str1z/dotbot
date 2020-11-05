@@ -1,0 +1,104 @@
+body {
+  background-color: #36393f;
+  color: white;
+  font-family: Arial;
+  margin: 0;
+  user-select: none;
+}
+
+div {
+  height: 100px;
+  width: 100px;
+}
+
+h1 {
+  color: grey;
+}
+
+form {
+  position: absolute;
+  right: 25vw;
+  top: calc(50vh - 150px);
+  border: 1px solid #222428;
+  padding: 10px;
+  border-radius: 3px;
+  background-color: hsl(222, 6%, 20%);
+}
+
+input {
+  background: #303339;
+  transition: 0.2s;
+  border: 1px solid #222428;
+  padding: 10px;
+  color: lightgray;
+  outline: none;
+  border-radius: 3px;
+  width: 100%;
+  display: block;
+  margin-top: 5px;
+  width: 178px;
+}
+input:hover {
+  border-color: black;
+}
+input[type="submit"] {
+  width: 200px;
+}
+input[type="submit"]:hover {
+  background-color: #43b883;
+}
+
+html,
+body {
+  height: 100vh;
+}
+body {
+  /* background: radial-gradient(ellipse at center, red 0%, green 35%, #36393f 100%); */
+  background: #36393f;
+  overflow: hidden;
+}
+
+.ocean {
+  height: 0;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: white;
+  z-index: -10;
+}
+
+.wave {
+  background: url(wave.svg) repeat-x;
+  position: absolute;
+  top: -198px;
+  width: 6400px;
+  height: 198px;
+  animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+  transform: translate3d(0, 0, 0);
+}
+
+.wave:nth-of-type(2) {
+  top: -175px;
+  animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.125s infinite, swell 7s ease -1.25s infinite;
+  opacity: 1;
+}
+
+@keyframes wave {
+  0% {
+    margin-left: 0;
+  }
+  100% {
+    margin-left: -1600px;
+  }
+}
+
+@keyframes swell {
+  0%,
+  100% {
+    transform: translate3d(0, -25px, 0);
+  }
+  50% {
+    transform: translate3d(0, 5px, 0);
+  }
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="global.css" />
+    <link rel="stylesheet" href="hosting.css" />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="utils.js"></script>
+  </head>
+  <body>
+    <div id="nav">
+      <a style="text-decoration: none; color: rgb(255, 50, 50); font-size: 14px;" onclick="document.getElementById('menu').className = ''">☰</a>
+      DOTBOT <span style="color: #0a9ad3;">HOSTING</span>
+
+      <div id="subnav">
+        <span id="username"></span>
+      </div>
+    </div>
+
+    <div id="menu" class="hide-menu">
+      <a style="color: rgb(255, 50, 50); font-size: 14px;" onclick="document.getElementById('menu').className = 'hide-menu'">⨉</a>MENU
+      <hr />
+      <h3 class="menu-sub">NAVIGATION</h3>
+      <a href="dashboard">DASHBOARD</a>
+      <a href="projects">PROJECTS</a>
+      <a href="hosting">HOSTING</a>
+      <a href="projects">SETTINGS</a>
+      <h3 class="menu-sub">PROJECT</h3>
+      <a onclick="location.href = 'editor?id=' + document.getElementById('current').value">EDIT</a>
+      <h3 class="menu-sub">HELP</h3>
+      <a href="projects">DOCS</a>
+    </div>
+
+    <div class="container">
+      SECRET TOKEN : <input id="token" spellcheck="false" /> <br />
+      BOT PREFIX : <input id="prefix" /> <br />
+      HOSTED PROJECT :
+      <select id="current"></select>
+      <input id="button" type="button" value="update hosting configuration" />
+    </div>
+    <div id="console" class="container">
+      dotbot v0.0.1 @ hosting
+    </div>
+    <script>
+      let current = id("current");
+      GET("api/user", (data) => {
+        console.log(data);
+        id("username").innerHTML = data.username;
+        id("token").value = data.bot_token;
+        id("prefix").value = data.bot_prefix;
+        current.innerHTML += `<option value="none">none</option>`;
+        for (let i of data.projects) {
+          current.innerHTML += `<option value="${i.id}">${i.name}</option>`;
+        }
+        current.value = data.selected;
+
+        console.log(data);
+      });
+
+      id("button").onclick = () => {
+        POST("/api/hosting", { token: id("token").value, prefix: id("prefix").value, selected: current.value }).then((data) => {
+          if (data.error) id("console").innerHTML += `<br>${data.error}`;
+          else id("console").innerHTML += `<br><span style = "color: grey;">${data.message}</span>`;
+        });
+      };
+
+      let socket;
+
+      document.body.onload = () => {
+        socket = io.connect(window.location.href);
+        let token = document.cookie.match(/=(.*$)/)[1];
+        socket.emit("auth", { token: token });
+
+        socket.on("console_log", (data) => {
+          let message = data.data;
+          switch (data.type) {
+            case "log_error":
+              id("console").innerHTML += `<br><span style= "color: red">${message}</span>`;
+              break;
+            case "log_info":
+              id("console").innerHTML += `<br><span style= "color: dodgerblue">${message}</span>`;
+              break;
+          }
+          id("console").scrollTop = id("console").scrollHeight;
+        });
+      };
+    </script>
+  </body>
+</html>

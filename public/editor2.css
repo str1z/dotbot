@@ -1,0 +1,313 @@
+body {
+  background-color: #36393f;
+  color: white;
+  font-family: Arial;
+  margin: 0;
+  user-select: none;
+}
+#nav {
+  background: #2f3136;
+  color: grey;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 3px;
+  border: 1px solid #222428;
+  cursor: default;
+  position: sticky;
+  top: 0;
+  font-weight: bold;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+}
+
+#subnav {
+  float: right;
+}
+
+/* save-button */
+.hide-save-div {
+  transform: translateX(-500px);
+  visibility: hidden;
+}
+.save-error {
+  animation: shake 0.5s;
+  color: rgb(255, 50, 50);
+  animation-iteration-count: 2;
+}
+.save-error > input,
+.save-pending > input {
+  pointer-events: none;
+  opacity: 0.3;
+}
+.save-error > span > .help {
+  color: white;
+}
+.save-pending {
+  animation: pulse 1s;
+  animation-iteration-count: infinite;
+}
+#save-button {
+  background: #43b581;
+  color: white;
+  border-radius: 3px;
+  padding: 10px;
+  border: none;
+}
+#save-button:hover {
+  background: #4fd89a;
+}
+#reset-button {
+  margin-left: 10px;
+  background: transparent;
+  color: grey;
+  padding: 5px;
+  border: none;
+  width: 60px;
+}
+#reset-button:hover {
+  text-decoration: underline;
+  color: white;
+}
+
+.help {
+  text-decoration: underline;
+  color: #0a9ad3;
+  cursor: pointer;
+}
+
+#troubleshooter {
+  position: fixed;
+  top: 20px;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background-color: black;
+  border-radius: 3px;
+  padding: 10px;
+  font-family: monospace;
+  overflow-y: auto;
+}
+
+/* commands */
+
+#commands-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+
+.name {
+  width: calc(100% - 20px);
+  border-radius: 3px;
+  margin-bottom: 5px;
+}
+
+.list {
+  color: grey;
+  font-size: small;
+  background: #303339;
+  border: 1px solid #222428;
+  border-radius: 3px;
+  margin-top: 5px;
+}
+
+.list-item {
+  padding: 3px;
+  align-items: center;
+}
+
+/* .list-item:hover {
+  background-color: #222428;
+} */
+
+.textparam {
+  display: block;
+  outline: none;
+  border: none;
+  padding: 5px;
+  color: lightgray;
+  border-left: solid 3px dimgray;
+  padding-left: 10px;
+  margin-left: 11px;
+  margin-bottom: 3px;
+  transition: 0.2s;
+  font-family: monospace;
+}
+
+.inparam {
+  margin-left: 5px;
+  color: #0a9ad3;
+  width: 100px;
+  text-align: center;
+  padding: 3px;
+  border: none;
+}
+
+.inparam:hover {
+  background: #222428;
+}
+
+.textparam:focus {
+  background: #222428;
+}
+
+.role-container,
+.action-container {
+}
+
+.add-action-container,
+.add-role-container {
+  display: flex;
+}
+.action-input,
+.role-input {
+  width: 100%;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+.add-action,
+.add-role {
+  width: 50px;
+  font-size: 25px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  padding: 0;
+}
+.command-section-title {
+  margin: 3px;
+  margin-bottom: 10px;
+  color: grey;
+  font-size: 10px;
+}
+
+.parameter {
+  margin-left: 5px;
+  color: #0a9ad3;
+  border-radius: 5px;
+  width: 100px;
+  text-align: center;
+}
+
+#save-div {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  margin: 10px;
+  border-radius: 3px;
+  background-color: rgba(30, 30, 30, 0.8);
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  font-size: small;
+  transition: 0.5s;
+}
+
+/* commands container */
+.compacted > hr {
+  visibility: hidden;
+  height: 0;
+}
+
+.delete-button {
+  border: none;
+  color: grey;
+  background: inherit;
+  transition: 0.2s;
+  font-family: monospace;
+  font-size: xx-large;
+  vertical-align: sub;
+  outline: none;
+  transition: 0.2s;
+  background: transparent;
+}
+
+.delete-command {
+  float: right;
+  margin-top: -10px;
+}
+
+.delete-role .delete-action {
+  float: left;
+}
+.delete-button:hover {
+  color: rgb(255, 50, 50);
+}
+
+.add_command {
+  text-align: center;
+  font-size: 60px;
+  cursor: default;
+  color: grey;
+}
+
+input:hover,
+select:hover,
+.list:hover,
+#new:hover {
+  border-color: black;
+}
+
+.command-container {
+  margin: 10px;
+  margin-top: 0;
+  border-radius: 3px;
+  border: 1px #202225 solid;
+  padding: 10px;
+  background-color: hsl(222, 6%, 20%);
+  width: 100%;
+}
+
+.compacted {
+  height: 65px;
+  overflow: hidden;
+  width: calc(20vw - 42px);
+}
+
+input,
+select {
+  background: #303339;
+  transition: 0.2s;
+  border: 1px solid #222428;
+  padding: 10px;
+  color: lightgray;
+  outline: none;
+}
+input[type="button"] {
+  background: #222428;
+  color: grey;
+  width: 100px;
+}
+
+/* text editor color */
+
+.keyword {
+  color: #0a9ad3;
+}
+
+.format {
+  color: grey;
+}
+
+.key {
+  color: rgb(255, 50, 50);
+}
+
+@media (max-width: 1000px) {
+  .compacted {
+    width: calc(25vw - 42px);
+  }
+}
+@media (max-width: 800px) {
+  .compacted {
+    width: calc(33.33vw - 42px);
+  }
+}
+@media (max-width: 600px) {
+  .compacted {
+    width: calc(50vw - 42px);
+  }
+}
+@media (max-width: 400px) {
+  .compacted {
+    width: calc(100vw - 42px);
+  }
+}

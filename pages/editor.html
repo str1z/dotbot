@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editor</title>
+    <link rel="stylesheet" href="editor.css" />
+    <link rel="stylesheet" href="global.css" />
+    <link rel="stylesheet" href="animations.css" />
+
+    <script src="utils.js"></script>
+  </head>
+  <body spellcheck="false">
+    <div id="nav">
+      <a style="text-decoration: none; color: rgb(255, 50, 50); font-size: 14px;" onclick="document.getElementById('menu').className = ''">☰</a>
+      <span>DOTBOT</span>
+      <span id="project-name"></span>
+      <div id="subnav">
+        <span id="username"></span>
+      </div>
+    </div>
+
+    <div id="maincontainer"></div>
+
+    <div id="save-div" class="hide-save-div">
+      <span id="save-status">Careful - you have unsaved changes!</span>
+      <input id="reset-button" value="Reset" type="button" />
+      <input id="save-button" value="Save changes" type="button" />
+    </div>
+
+    <div id="menu" class="hide-menu">
+      <a style="color: rgb(255, 50, 50); font-size: 14px;" onclick="document.getElementById('menu').className = 'hide-menu'">⨉</a>MENU
+      <hr />
+      <h3 class="menu-sub">NAVIGATION</h3>
+      <a href="dashboard">DASHBOARD</a>
+      <a href="projects">PROJECTS</a>
+      <a href="hosting">HOSTING</a>
+      <a href="projects">SETTINGS</a>
+      <h3 class="menu-sub">HOSTING</h3>
+      <a href="hosting" target="_blank">OPEN</a>
+      <h3 class="menu-sub">HELP</h3>
+      <a href="projects">DOCS</a>
+      <a id="troubleshoot-menu">TROUBLESHOOT</a>
+    </div>
+
+    <script>
+      (() => {
+        const actions = {
+          reply: ["text"],
+          dm: ["user", "text"],
+          send: ["text"],
+          channel: ["string", "text"],
+          react: ["emoji"],
+          ban: ["user"],
+          kick: ["user"],
+          clear: ["string"],
+          presence: ["text"],
+          specific: ["string", "text"],
+        };
+        const useroption = ["author", "user", "arg1", "arg2", "arg3"];
+        let commands;
+        let previous;
+        let project_id = new URLSearchParams(location.search).get("id");
+        id("reset-button").onclick = reset;
+        id("save-button").onclick = save;
+        id("troubleshoot-menu").onclick = troubleshoot;
+        id("nav").onclick = () => updateCommands(commands);
+        GET("api/user", (data) => (id("username").innerHTML = data.error ? `<span style="color: red;">${data.error}</span>` : data.username));
+
+        GET(`api/project?id=${project_id}`, (data) => {
+          id("project-name").innerHTML = data.error ? `<span style="color: red;">${data.error}</span>` : `<span style="color: #0a9ad3;">${data.name.toUpperCase()}</span>`;
+          commands = JSON.parse(data.commands);
+          updateCommands(commands);
+          previous = data.commands;
+          window.onkeyup = check_changes;
+        });
+        function check_changes() {
+          if (!previous) return;
+          if (previous == JSON.stringify(commands)) return (id("save-div").className = "hide-save-div");
+          id("save-div").className = "";
+        }
+        function reset() {
+          commands = JSON.parse(previous);
+          id("save-status").innerHTML = "Careful - you have unsaved changes!";
+          updateCommands(commands);
+        }
+        function download(data) {
+          let blob = new Blob([data], { type: "test/json" });
+          if (window.navigator.msSaveOrOpenBlob) return window.navigator.msSaveBlob(blob, "commands.json");
+          let elem = document.createElement("a");
+          elem.href = window.URL.createObjectURL(blob);
+          elem.download = "commands.json";
+          document.body.append(elem);
+          elem.click();
+          elem.remove();
+        }
+        function need_help() {
+          setTimeout(() => {
+            id("save-div").className = "";
+            id("save-status").innerHTML = '<span style="color: dimgrey;">┻━┻︵ヽ(`Д´)ﾉ︵ ┻━┻</span><br>Failed to save! ';
+            let help = id("save-status").appendChild(document.createElement("span"));
+            help.className = "help";
+            help.innerHTML = "Need help?";
+            help.onclick = troubleshoot;
+          }, 1500);
+        }
+
+        function troubleshoot() {
+          //create interface
+          let window = document.body.appendChild(document.createElement("div"));
+          window.id = "troubleshooter";
+          let close = window.appendChild(document.createElement("button"));
+          close.onclick = () => window.remove();
+          close.className = "delete";
+          close.innerHTML = "•";
+          let div = window.appendChild(document.createElement("div"));
+          div.innerText += "bolt editor toubleshooter @ v0.0.1\n";
+          div.innerText += "starting diagnosis...\n";
+          div.innerText += "checking server connectivity...\n";
+          let img = document.body.appendChild(document.createElement("img"));
+          img.lastmod;
+          img.onload = () => {
+            img.remove();
+            //online
+            div.innerText += "server is online\n";
+            div.innerText += "checking your cookies\n";
+            if (!document.cookie) {
+              div.innerText += "seems like your cookies got eaten...\n";
+              div.innerText += "downloading your command file...If you have done a lot of valuable progress, you can recover your progress with this file.\n";
+              download(JSON.stringify(commands));
+            } else {
+              div.innerText += "cookies are still on the plate...\n";
+              GET("api/user", (data) => {
+                if (data.error) {
+                  div.innerText += "It seems that your cookies has expired, get a new one by signing in.\n";
+                  div.innerHTML += `<a href="/login" target="_blank"style="text-decoration: underline; color: white;">Click here to login. After comeback here and save.</a>`;
+                } else div.innerText += "Those cookies are still fresh. Welp, it seems that I can't figure out the problem if there is one.\n";
+              });
+            }
+          };
+          img.onerror = () => {
+            img.remove();
+            //offline
+            div.innerText += "server is offline\n";
+            div.innerText += "downloading your command file... If you have done a lot of valuable progress, you can recover your progress with this file.\n";
+            download(JSON.stringify(commands));
+          };
+          img.src = "logo.png?lastmod=1";
+        }
+        function save() {
+          let pendingTimeout = setTimeout(() => {
+            id("save-status").innerHTML = "Waiting for server...";
+            id("save-div").className = "save-pending";
+          }, 50);
+
+          let show_error = () => {
+            id("save-div").className = "save-error";
+            id("save-status").innerHTML = "┻━┻︵ヽ(`Д´)ﾉ︵ ┻━┻<br>Failed to save! Aaahhh!!!";
+            need_help();
+          };
+
+          POST(`api/project?id=${project_id}`, { data: commands })
+            .then((data) => {
+              if (data.error) return show_error();
+              id("save-div").className = "hide-save-div";
+              previous = JSON.stringify(commands);
+              id("save-status").innerText = "Careful - you have unsaved changes!";
+            })
+            .catch(() => show_error())
+            .finally(() => clearTimeout(pendingTimeout));
+        }
+        function updateCommands(commands) {
+          let maincontainer = document.getElementById("maincontainer");
+          let containers = [];
+          maincontainer.innerHTML = "";
+          for (let i of commands) {
+            let container = document.createElement("div");
+            containers.push(container);
+            container.className = "container compacted";
+            let name = document.createElement("input");
+
+            container.onclick = () => {
+              for (let i of containers) if (i !== container) i.classList.add("compacted");
+              container.classList.remove("compacted");
+            };
+
+            //name
+            name.value = i.name;
+            name.className = name.value.startsWith("@") ? "name name-event" : "name";
+            name.placeholder = "command name";
+            name.onkeyup = () => {
+              i.name = name.value.replace(/\s/g, "");
+              name.className = name.value.startsWith("@") ? "name name-event" : "name";
+            };
+            name.addEventListener("focusout", () => {
+              name.value = i.name;
+            });
+            //roles
+
+            let roles_container = document.createElement("div");
+
+            let role_input = document.createElement("input");
+            role_input.placeholder = "role name";
+            role_input.type = "text";
+
+            let add_role = document.createElement("input");
+            add_role.value = "+";
+            add_role.type = "button";
+            add_role.onclick = () => {
+              if (!i.roles.includes(role_input.value) && !role_input.value == "") {
+                i.roles.push(role_input.value);
+                update_roles();
+                role_input.value = "";
+              }
+            };
+
+            let roles_list = document.createElement("div");
+            roles_list.className = "list";
+
+            let update_roles = () => {
+              roles_list.style.visibility = i.roles.length > 0 ? "visible" : "hidden";
+              roles_list.innerHTML = "";
+              for (let j in i.roles) {
+                let role = document.createElement("div");
+
+                let remove = document.createElement("button");
+                remove.innerText = "•";
+
+                remove.id = j;
+                role.append(remove);
+                role.innerHTML += i.roles[j];
+                roles_list.append(role);
+              }
+
+              for (let e of roles_list.querySelectorAll("button"))
+                e.onclick = () => {
+                  i.roles.splice(e.id, 1);
+                  update_roles();
+                };
+              check_changes();
+            };
+
+            update_roles();
+
+            let add_role_container = document.createElement("div");
+            add_role_container.className = "add-role-container";
+
+            add_role_container.append(role_input);
+            add_role_container.append(add_role);
+            roles_container.append(add_role_container);
+            roles_container.append(roles_list);
+
+            let nameLabel = document.createElement("h4");
+            nameLabel.innerHTML = "NAME";
+
+            let deleteCmd = document.createElement("button");
+            deleteCmd.innerHTML = "•";
+            deleteCmd.className = "delete";
+
+            deleteCmd.onclick = () => {
+              commands.splice(commands.indexOf(i), 1);
+              updateCommands(commands);
+            };
+
+            container.append(deleteCmd);
+            container.append(nameLabel);
+
+            container.append(name);
+            container.append(document.createElement("hr"));
+
+            let accessLabel = document.createElement("h4");
+            accessLabel.innerHTML = "ROLES";
+            container.append(accessLabel);
+
+            container.append(roles_container);
+            container.append(document.createElement("hr"));
+
+            // Code
+
+            let actions_container = document.createElement("div");
+
+            let action_input = document.createElement("select");
+            action_input.placeholder = "action type";
+            for (let i in actions) {
+              action_input.innerHTML += `<option value="${i}">${i}</option>`;
+            }
+
+            let add_action = document.createElement("input");
+            add_action.value = "+";
+            add_action.type = "button";
+
+            add_action.onclick = () => {
+              let args = {};
+              for (let i of actions[action_input.value])
+                switch (i) {
+                  case "user":
+                    args.user = "author";
+                    break;
+                  case "text":
+                    args.text = "";
+                    break;
+                  case "number":
+                    args.number = 1;
+                    break;
+                  case "emoji":
+                    args.emoji = "128513";
+                    break;
+                  case "string":
+                    args.string = "";
+                    break;
+                }
+              i.actions.push({ type: action_input.value, ...args });
+              update_actions();
+            };
+
+            let actions_list = document.createElement("div");
+            actions_list.className = "list";
+
+            let update_actions = () => {
+              actions_list.style.visibility = i.actions.length > 0 ? "visible" : "hidden";
+              actions_list.innerHTML = "";
+
+              for (let j in i.actions) {
+                let action = document.createElement("div");
+
+                let remove = document.createElement("button");
+                remove.innerText = "•";
+
+                remove.id = j;
+                action.append(remove);
+                action.className = "action";
+                action.innerHTML += i.actions[j].type;
+                for (let arg of actions[i.actions[j].type]) {
+                  let argInput;
+                  switch (arg) {
+                    case "number":
+                      argInput = document.createElement("input");
+                      argInput.className = "parameter";
+                      argInput.type = "number";
+                      argInput.placeholder = "number";
+                      argInput.onchange = () => (i.actions[j][arg] = argInput.value);
+                      argInput.onkeyup = () => (i.actions[j][arg] = argInput.value);
+
+                      break;
+                    case "string":
+                      argInput = document.createElement("input");
+                      argInput.className = "parameter";
+                      argInput.type = "text";
+                      argInput.placeholder = "identificaton";
+                      argInput.onchange = () => (i.actions[j][arg] = argInput.value);
+                      argInput.onkeyup = () => (i.actions[j][arg] = argInput.value);
+
+                      break;
+                    case "user":
+                      argInput = document.createElement("select");
+                      argInput.className = "parameter";
+                      for (let opt of useroption) argInput.innerHTML += `<option value="${opt}">${opt}</option>`;
+                      argInput.onchange = () => (i.actions[j][arg] = argInput.value);
+                      argInput.onkeyup = () => (i.actions[j][arg] = argInput.value);
+                      break;
+                    case "text":
+                      argInput = document.createElement("span");
+                      argInput.contentEditable = true;
+                      argInput.innerHTML = i.actions[j][arg];
+                      argInput.classList.add("arg-text");
+                      let update_inner = () => {
+                        if (argInput.innerText.startsWith("#embed#\n") || argInput.innerText.startsWith("#presence#\n")) {
+                          argInput.innerHTML = argInput.innerText
+                            .replace(/(%\S+%)/g, (match, res) => {
+                              return `<span class="keyword">${res}</span>`;
+                            })
+                            .replace(/#(\S+)#/, (m, v) => `<span class="format">#${v}#</span>`)
+                            .replace(/^\s*(\w+)\s*:\s*(.*)$/gm, (match, key, value) => {
+                              return `<span class="key">${key}</span> <span class="operator">:</span> <span class="value">${value}</span>`;
+                            })
+                            .replace(/\n/g, "<br>");
+                        } else {
+                          argInput.innerHTML = argInput.innerText
+                            .replace(/(%\S+%)/g, (match, res) => {
+                              return `<span class="keyword">${res}</span>`;
+                            })
+                            .replace(/\n/g, "<br>");
+                        }
+                      };
+
+                      argInput.addEventListener("focusout", update_inner);
+                      update_inner();
+                      argInput.onkeyup = () => {
+                        i.actions[j][arg] = argInput.innerText;
+                      };
+                      break;
+                    case "emoji":
+                      argInput = document.createElement("select");
+                      argInput.className = "parameter";
+                      let ranges = [
+                        [128513, 128591],
+                        [9986, 9998],
+                        [10024, 10025],
+                        [10060, 10061],
+                        [10062, 10063],
+                        [10067, 10070],
+                        [10071, 10072],
+                        [128640, 128704],
+                      ];
+                      for (let range of ranges) for (let i = range[0]; i < range[1]; i++) argInput.innerHTML += `<option value="${i}">&#${i};</option>`;
+
+                      argInput.onchange = () => (i.actions[j][arg] = argInput.value);
+                      argInput.onkeyup = () => (i.actions[j][arg] = argInput.value);
+                      break;
+                  }
+                  argInput.classList.add("arg");
+                  argInput.value = i.actions[j][arg];
+                  argInput.spellcheck = false;
+                  action.append(argInput);
+                }
+                actions_list.append(action);
+              }
+
+              for (let e of actions_list.querySelectorAll("button"))
+                e.onclick = () => {
+                  i.actions.splice(e.id, 1);
+                  update_actions();
+                };
+              check_changes();
+            };
+
+            update_actions();
+
+            let add_action_container = document.createElement("div");
+            add_action_container.className = "add-action-container";
+
+            add_action_container.append(action_input);
+            add_action_container.append(add_action);
+
+            actions_container.append(add_action_container);
+            actions_container.append(actions_list);
+            let actionLabel = document.createElement("h4");
+            actionLabel.innerHTML = "ACTIONS";
+            container.append(actionLabel);
+            container.append(actions_container);
+
+            //main
+            maincontainer.append(container);
+          }
+          //new command
+          let new_command = document.createElement("div");
+          new_command.className = "container compacted";
+          new_command.id = "new";
+          new_command.innerHTML = "+";
+          new_command.onclick = () => {
+            commands.push({ name: "new_command", roles: [], actions: [] });
+            updateCommands(commands);
+          };
+          maincontainer.append(new_command);
+          check_changes();
+        }
+      })();
+    </script>
+  </body>
+</html>

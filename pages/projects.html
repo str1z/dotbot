@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projects</title>
+    <link rel="stylesheet" href="global.css" />
+    <link rel="stylesheet" href="projects.css" />
+
+    <script src="utils.js"></script>
+  </head>
+  <body>
+    <div id="nav">
+      <a style="text-decoration: none; color: rgb(255, 50, 50); font-size: 14px;" onclick="document.getElementById('menu').className = ''">☰</a>
+      DOTBOT <span style="color: #0a9ad3;">PROJECTS</span>
+
+      <div id="subnav">
+        <span id="username"></span>
+      </div>
+    </div>
+
+    <div id="menu" class="hide-menu">
+      <a style="color: rgb(255, 50, 50); font-size: 14px;" onclick="document.getElementById('menu').className = 'hide-menu'">⨉</a>MENU
+      <hr />
+      <h3 class="menu-sub">NAVIGATION</h3>
+      <a href="dashboard">DASHBOARD</a>
+      <a href="projects">PROJECTS</a>
+      <a href="hosting">HOSTING</a>
+      <a href="projects">SETTINGS</a>
+      <h3 class="menu-sub">HELP</h3>
+      <a href="projects">DOCS</a>
+    </div>
+
+    <div id="main-container"></div>
+
+    <script>
+      GET("api/user", (data) => {
+        console.log(data);
+        id("username").innerHTML = data.username;
+        let main = id("main-container");
+        for (let i of data.projects) {
+          let container = main.appendChild(document.createElement("div"));
+          container.className = "container compacted";
+          let name = container.appendChild(document.createElement("span"));
+          name.className = "title";
+          name.title = i.name;
+          name.innerHTML = i.name.length > 12 ? i.name.substring(0, 12) + "..." : i.name;
+          let del = container.appendChild(document.createElement("button"));
+          del.innerHTML = "•";
+          del.className = "delete";
+          del.onclick = () => {
+            let str = prompt("Type the project's name or just type FORCE to delete it. You can't regret it.");
+            if (str == i.name || str == "FORCE") GET("/api/project/delete?id=" + i.id, () => window.location.reload());
+          };
+          let edit = container.appendChild(document.createElement("input"));
+          edit.type = "button";
+          edit.value = "EDIT";
+          edit.onclick = () => (window.location.href = "editor?id=" + i.id);
+        }
+        let new_project = main.appendChild(document.createElement("div"));
+        new_project.className = "container compacted ";
+        new_project.id = "new";
+        new_project.innerHTML = "+";
+        new_project.onclick = () => (window.location.href = "new-project");
+        if (data.projects.length == 0) {
+          let emptyness = main.appendChild(document.createElement("div"));
+          emptyness.className = "container compacted emptyness";
+          emptyness.style.cursor = "default";
+          emptyness.innerHTML = "Woahh, such emptyness. Click on the plus to fill this space up.";
+          emptyness.onclick = () => {
+            emptyness.className = "container compacted emptyness-rage";
+            emptyness.innerHTML = "щ(ಥДಥщ)<br> I said... CLICK ON THE PLUS. Not me!!!";
+            setTimeout(() => {
+              emptyness.className = "container compacted emptyness";
+              emptyness.innerHTML = "Woahh, such emptyness. Click on the plus to fill this space up.";
+            }, 2000);
+          };
+        }
+      });
+    </script>
+  </body>
+</html>

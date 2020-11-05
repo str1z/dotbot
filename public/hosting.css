@@ -1,0 +1,81 @@
+body {
+  background-color: #36393f;
+  color: white;
+
+  margin: 0;
+}
+#nav {
+  background: #2f3136;
+  color: grey;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 3px;
+  border: 1px solid #222428;
+  cursor: default;
+  position: sticky;
+  top: 0;
+  font-weight: bold;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+}
+
+.container {
+  margin: 10px;
+  margin-top: 0;
+  border-radius: 3px;
+  border: 1px #202225 solid;
+  padding: 10px;
+  background-color: hsl(222, 6%, 20%);
+  color: dimgray;
+  font-weight: bold;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+}
+
+input,
+select {
+  background: #303339;
+  transition: 0.2s;
+  border: 1px solid #222428;
+  padding: 10px;
+  color: lightgray;
+  outline: none;
+  margin-top: 5px;
+  border-radius: 3px;
+}
+
+input:hover,
+select:hover,
+#console:hover {
+  border-color: black;
+}
+
+#button {
+  float: right;
+}
+
+#button:hover {
+  background-color: #43b883;
+}
+
+#token {
+  color: #303339;
+}
+
+#token:hover {
+  color: grey;
+}
+
+#subnav {
+  float: right;
+}
+
+#console {
+  background-color: #202225;
+  font-family: monospace;
+}
+
+@media (max-width: 500px) {
+  #button {
+    float: none;
+    display: inline-block;
+  }
+}
