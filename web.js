@@ -5,7 +5,7 @@ const Project = require("./database/Project");
 const Job = require("./database/Job");
 //security
 const jwt = require("jsonwebtoken");
-const jwt_key = "damn";
+const jwt_key = "123";
 //server
 const express = require("express");
 const app = express();
