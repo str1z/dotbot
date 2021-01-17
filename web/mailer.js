@@ -24,7 +24,7 @@ const mail = (
   console.log(email);
   transporter.sendMail(
     {
-      from: '"Wallet" <walletmailman@gmail.com>',
+      from: 'xxxxxxxxx',
       to: email,
       subject: subject,
       text: text
